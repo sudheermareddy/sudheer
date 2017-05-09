@@ -76,10 +76,7 @@
                     "apiVersion": "[parameters('virtualMachineSettings').apiVersion]",
                     "dependsOn": [
                         "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineSettings').feComputerName0)]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('virtualMachineSettings').leaderComputerName, parameters('virtualMachineSettings').leaderExtensionName)]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('virtualMachineSettings').followerComputerName1, parameters('virtualMachineSettings').followerExtensionName1)]",
-                        "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('virtualMachineSettings').followerComputerName2, parameters('virtualMachineSettings').followerExtensionName2)]"
-                    ],
+                          ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Extensions",
                         "type": "CustomScript",
