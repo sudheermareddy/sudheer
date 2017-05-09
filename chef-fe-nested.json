@@ -1,0 +1,254 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "virtualMachineSettings": {
+            "type": "object"
+        },
+        "networkSettings": {
+            "type": "object"
+        },
+        "dbPassword": {
+            "type": "string"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "apiVersion": "[parameters('virtualMachineSettings').computeApiVersion]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachineSettings').feComputerName0]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSettings').vmSize]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachineSettings').feComputerName0]",
+                    "adminUsername": "[parameters('virtualMachineSettings').adminUsername]",
+                    "adminPassword": "[parameters('virtualMachineSettings').adminPassword]",
+                    "customData": "[parameters('virtualMachineSettings').fe0CustomData]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('virtualMachineSettings').imagePublisher]",
+                        "offer": "[parameters('virtualMachineSettings').imageOffer]",
+                        "sku": "[parameters('virtualMachineSettings').ubuntuOSVersion]",
+                        "version": "[parameters('virtualMachineSettings').imageVersion]"
+                    },
+                    "osDisk": {
+                        "createOption": "FromImage"
+                    },
+                    "dataDisks": [
+                        {
+                            "name": "[concat(parameters('virtualMachineSettings').managedDiskName,'0')]",
+                            "lun": 0,
+                            "caching": "None",
+                            "createOption": "Attach",
+                            "managedDisk": {
+                                "id": "[resourceId('Microsoft.Compute/disks',concat(parameters('virtualMachineSettings').managedDiskName,'0'))]"
+                            }
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('networkSettings').feNicName0)]"
+                        }
+                    ]
+                },
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets',parameters('virtualMachineSettings').chefFEAvailName)]"
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[concat('http://',parameters('networkSettings').diagStorageAccName,'.blob.core.windows.net')]"
+                    }
+                }
+            },
+            "resources": [
+                {
+                    "name": "[parameters('virtualMachineSettings').feVmExtensionName0]",
+                    "type": "extensions",
+                    "location": "[resourceGroup().location]",
+                    "apiVersion": "[parameters('virtualMachineSettings').apiVersion]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineSettings').feComputerName0)]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('virtualMachineSettings').leaderComputerName, parameters('virtualMachineSettings').leaderExtensionName)]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('virtualMachineSettings').followerComputerName1, parameters('virtualMachineSettings').followerExtensionName1)]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('virtualMachineSettings').followerComputerName2, parameters('virtualMachineSettings').followerExtensionName2)]"
+                    ],
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Extensions",
+                        "type": "CustomScript",
+                        "typeHandlerVersion": "2.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "commandToExecute": "[concat('bash /etc/opscode/chef-frontend-install.sh', ' ', parameters('dbPassword'), ' ', parameters('virtualMachineSettings').adminPassword)]"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "apiVersion": "[parameters('virtualMachineSettings').computeApiVersion]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachineSettings').feComputerName1]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSettings').vmSize]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachineSettings').feComputerName1]",
+                    "adminUsername": "[parameters('virtualMachineSettings').adminUsername]",
+                    "adminPassword": "[parameters('virtualMachineSettings').adminPassword]",
+                    "customData": "[parameters('virtualMachineSettings').feCustomData]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('virtualMachineSettings').imagePublisher]",
+                        "offer": "[parameters('virtualMachineSettings').imageOffer]",
+                        "sku": "[parameters('virtualMachineSettings').ubuntuOSVersion]",
+                        "version": "[parameters('virtualMachineSettings').imageVersion]"
+                    },
+                    "osDisk": {
+                        "createOption": "FromImage"
+                    },
+                    "dataDisks": [
+                        {
+                            "name": "[concat(parameters('virtualMachineSettings').managedDiskName,'1')]",
+                            "lun": 0,
+                            "caching": "None",
+                            "createOption": "Attach",
+                            "managedDisk": {
+                                "id": "[resourceId('Microsoft.Compute/disks',concat(parameters('virtualMachineSettings').managedDiskName,'1'))]"
+                            }
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('networkSettings').feNicName1)]"
+                        }
+                    ]
+                },
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets',parameters('virtualMachineSettings').chefFEAvailName)]"
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[concat('http://',parameters('networkSettings').diagStorageAccName,'.blob.core.windows.net')]"
+                    }
+                }
+            },
+            "resources": [
+                {
+                    "name": "[parameters('virtualMachineSettings').feVmExtensionName1]",
+                    "type": "extensions",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineSettings').feComputerName1)]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('virtualMachineSettings').feComputerName0, parameters('virtualMachineSettings').feVmExtensionName0)]"
+                    ],
+                    "apiVersion": "[parameters('virtualMachineSettings').apiVersion]",
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Extensions",
+                        "type": "CustomScript",
+                        "typeHandlerVersion": "2.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "commandToExecute": "[concat('bash /etc/opscode/chef-frontend-install.sh', ' ', parameters('dbPassword'))]"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "apiVersion": "[parameters('virtualMachineSettings').computeApiVersion]",
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[parameters('virtualMachineSettings').feComputerName2]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "hardwareProfile": {
+                    "vmSize": "[parameters('virtualMachineSettings').vmSize]"
+                },
+                "osProfile": {
+                    "computerName": "[parameters('virtualMachineSettings').feComputerName2]",
+                    "adminUsername": "[parameters('virtualMachineSettings').adminUsername]",
+                    "adminPassword": "[parameters('virtualMachineSettings').adminPassword]",
+                    "customData": "[parameters('virtualMachineSettings').feCustomData]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "[parameters('virtualMachineSettings').imagePublisher]",
+                        "offer": "[parameters('virtualMachineSettings').imageOffer]",
+                        "sku": "[parameters('virtualMachineSettings').ubuntuOSVersion]",
+                        "version": "[parameters('virtualMachineSettings').imageVersion]"
+                    },
+                    "osDisk": {
+                        "createOption": "FromImage"
+                    },
+                    "dataDisks": [
+                        {
+                            "name": "[concat(parameters('virtualMachineSettings').managedDiskName,'2')]",
+                            "lun": 0,
+                            "caching": "None",
+                            "createOption": "Attach",
+                            "managedDisk": {
+                                "id": "[resourceId('Microsoft.Compute/disks',concat(parameters('virtualMachineSettings').managedDiskName,'2'))]"
+                            }
+                        }
+                    ]
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('networkSettings').feNicName2)]"
+                        }
+                    ]
+                },
+                "availabilitySet": {
+                    "id": "[resourceId('Microsoft.Compute/availabilitySets',parameters('virtualMachineSettings').chefFEAvailName)]"
+                },
+                "diagnosticsProfile": {
+                    "bootDiagnostics": {
+                        "enabled": true,
+                        "storageUri": "[concat('http://',parameters('networkSettings').diagStorageAccName,'.blob.core.windows.net')]"
+                    }
+                }
+            },
+            "resources": [
+                {
+                    "name": "[parameters('virtualMachineSettings').feVmExtensionName2]",
+                    "type": "extensions",
+                    "location": "[resourceGroup().location]",
+                    "dependsOn": [
+                        "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineSettings').feComputerName2)]",
+                        "[resourceId('Microsoft.Compute/virtualMachines/extensions',parameters('virtualMachineSettings').feComputerName0,parameters('virtualMachineSettings').feVmExtensionName0)]"
+                    ],
+                    "apiVersion": "[parameters('virtualMachineSettings').apiVersion]",
+                    "properties": {
+                        "publisher": "Microsoft.Azure.Extensions",
+                        "type": "CustomScript",
+                        "typeHandlerVersion": "2.0",
+                        "autoUpgradeMinorVersion": true,
+                        "settings": {
+                            "commandToExecute": "[concat('bash /etc/opscode/chef-frontend-install.sh', ' ', parameters('dbPassword'))]"
+                        }
+                    }
+                }
+            ]
+        }
+    ],
+    "outputs": {
+        "dbPassword": {
+            "type": "string",
+            "value": "[parameters('dbPassword')]"
+        }
+    }
+}
