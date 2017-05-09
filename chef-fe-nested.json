@@ -75,7 +75,7 @@
                     "location": "[resourceGroup().location]",
                     "apiVersion": "[parameters('virtualMachineSettings').apiVersion]",
                     "dependsOn": [
-                        "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineSettings').feComputerName0)]",
+                        "[concat('Microsoft.Compute/virtualMachines/', parameters('virtualMachineSettings').feComputerName0)]"
                           ],
                     "properties": {
                         "publisher": "Microsoft.Azure.Extensions",
