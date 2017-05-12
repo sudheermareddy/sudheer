@@ -68,7 +68,7 @@ while [ $pstatus -gt 1 ]; do sleep 180; pstatus=`ps -eaf | grep apt.systemd.dail
 sudo apt-get update
 sudo apt-get install -y dos2unix
 sudo -i
-curl "https://github.com/sudheermareddy/sudheer/blob/master/startup.sh" > /var/lib/jenkins/startup.sh
+curl "https://raw.githubusercontent.com/sudheermareddy/sudheer/master/startup.sh" > /var/lib/jenkins/startup.sh
 dos2unix /var/lib/jenkins/startup.sh
 bash /var/lib/jenkins/startup.sh -h $HOST -u $USR -p $PWD -s $SCRIPTURL
 /etc/init.d/jenkins restart
