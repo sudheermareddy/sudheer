@@ -58,9 +58,9 @@ curl "https://aztdrepo.blob.core.windows.net/cloudbees/scripts/sshscript.sh" > /
 ###update script with required permissions
 dos2unix /var/lib/jenkins/sshscript.sh && chmod +x /var/lib/jenkins/sshscript.sh
 curl "https://sattaarmdep.blob.core.windows.net/satta-arm-dep/arm-templates/cb-jenkins/config.xml" > /var/lib/jenkins/config.xml
-cd /var/lib/jenkins/
-dos2unix config.xml && chmod +x config.xml
-curl -X POST -H "Content-Type:application/xml" -d @config.xml "http://localhost/createItem?name=CloudTryPipeline1" --user admin:$JPASSWORD
+#cd /var/lib/jenkins/
+#dos2unix config.xml && chmod +x config.xml
+#curl -X POST -H "Content-Type:application/xml" -d @config.xml "http://localhost/createItem?name=CloudTryPipeline1" --user admin:$JPASSWORD
 [[ "$?" != "0" ]] && echo "[ERROR] Packages are not install" && exit 1
 
 
